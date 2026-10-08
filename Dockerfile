@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     && docker-php-ext-install pdo pdo_sqlite zip
 
+# Fix Apache More than one MPM loaded error
+RUN a2dismod mpm_event && a2enmod mpm_prefork
+
 # Enable Apache Rewrite Module
 RUN a2enmod rewrite
 
