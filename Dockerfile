@@ -11,12 +11,11 @@ FROM php:8.2-cli
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libjpeg62-turbo-dev \
     libpng-dev \
-    libpq-dev \
     libsqlite3-dev \
     libwebp-dev \
     libzip-dev \
     && docker-php-ext-configure gd --with-jpeg --with-webp \
-    && docker-php-ext-install gd pdo_pgsql pdo_sqlite zip \
+    && docker-php-ext-install gd pdo_mysql pdo_sqlite zip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
