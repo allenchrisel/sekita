@@ -13,13 +13,15 @@ COPY . /var/www/html
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
-# Clear dan reset cache Laravel agar tidak error 500
-RUN php artisan config:clear
-RUN php artisan cache:clear
+# Berikan izin eksekusi ke script start.sh
+COPY start.sh /var/www/html/start.sh
+RUN chmod +x /var/www/html/start.sh
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Atur hak akses folder
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/database /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage /var/www/html/database
 
 ENV PORT=8080
 EXPOSE 8080
 
-CMD php -S 0.0.0.0:$PORT -t public
+CMD ["/var/www/html/start.sh"]
