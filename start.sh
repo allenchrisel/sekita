@@ -16,4 +16,4 @@ mkdir -p storage/app/private_documents storage/app/public \
 php artisan config:clear
 php artisan migrate --force
 
-exec php -S "0.0.0.0:${PORT:-8080}" -t public
+exec php -S "0.0.0.0:${PORT:-8080}" -t public public/router.php
