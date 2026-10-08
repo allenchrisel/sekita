@@ -1,25 +1,18 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
+set -eu
 
-# 1. Pastikan folder database ada
-mkdir -p /var/www/html/database
-
-# 2. Paksa buat file database.sqlite jika belum ada atau ukurannya 0
-if [ ! -f /var/www/html/database/database.sqlite ]; then
-    touch /var/www/html/database/database.sqlite
-    echo "File database.sqlite berhasil dibuat."
+if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
+    database_path="${DB_DATABASE:-/var/www/html/database/database.sqlite}"
+    mkdir -p "$(dirname "$database_path")"
+    if [ ! -f "$database_path" ]; then
+        touch "$database_path"
+    fi
 fi
 
-# 3. Berikan izin penuh agar bisa dibaca dan ditulis oleh aplikasi
-chmod 777 /var/www/html/database/database.sqlite
-chmod -R 777 /var/www/html/storage
-chmod -R 777 /var/www/html/bootstrap/cache
+mkdir -p storage/app/private_documents storage/app/public \
+    storage/framework/cache/data storage/framework/sessions \
+    storage/framework/views storage/logs bootstrap/cache
 
-# 4. Jalankan migrasi database
 php artisan migrate --force
 
-# 5. Clear cache agar konfigurasi segar
-php artisan config:clear
-php artisan cache:clear
-
-# 6. Jalankan server PHP
-exec php -S 0.0.0.0:${PORT:-8080} -t public
+exec php -S "0.0.0.0:${PORT:-8080}" -t public

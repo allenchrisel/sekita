@@ -1,27 +1,40 @@
+FROM node:22-alpine AS frontend
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
 FROM php:8.2-cli
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libpq-dev \
     libsqlite3-dev \
-    git \
-    unzip \
+    libwebp-dev \
     libzip-dev \
-    && docker-php-ext-install pdo pdo_sqlite zip
+    && docker-php-ext-configure gd --with-jpeg --with-webp \
+    && docker-php-ext-install gd pdo_pgsql pdo_sqlite zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html
-COPY . /var/www/html
-
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev --optimize-autoloader
+COPY . .
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader \
+    && mkdir -p storage/app/private_documents storage/app/public storage/framework/cache/data \
+        storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+    && php artisan storage:link \
+    && chown -R www-data:www-data storage bootstrap/cache database
 
-# Berikan izin eksekusi ke script start.sh
-COPY start.sh /var/www/html/start.sh
-RUN chmod +x /var/www/html/start.sh
-
-# Atur hak akses folder
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/database /var/www/html/bootstrap/cache
-RUN chmod -R 775 /var/www/html/storage /var/www/html/database
+COPY --from=frontend --chown=www-data:www-data /app/public/build ./public/build
+COPY --chown=www-data:www-data start.sh ./start.sh
+RUN chmod +x start.sh
 
 ENV PORT=8080
 EXPOSE 8080
 
-CMD ["/var/www/html/start.sh"]
+USER www-data
+CMD ["./start.sh"]

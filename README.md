@@ -35,6 +35,38 @@ DB_PASSWORD=
 
 Untuk PostgreSQL, pakai `DB_CONNECTION=pgsql`, port `5432`, dan kredensial PostgreSQL lokal Anda.
 
+## Deploy ke Railway
+
+Railway membaca `Dockerfile` di root repository. Image membangun aset Vite dan menyediakan ekstensi PHP untuk SQLite, PostgreSQL, dan pemrosesan gambar.
+
+1. Push perubahan ke GitHub, lalu buat project Railway dengan **Deploy from GitHub repo** dan pilih repository ini.
+2. Tambahkan service **PostgreSQL** di project Railway.
+3. Di service aplikasi, tambahkan variables berikut:
+
+   ```dotenv
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_KEY=<hasil php artisan key:generate --show>
+   APP_URL=https://<domain-Railway>
+   DB_CONNECTION=pgsql
+   DB_URL=${{Postgres.DATABASE_URL}}
+   ```
+
+   Ganti `Postgres` pada variable reference dengan nama service database yang tampil di project bila berbeda. Buat `APP_KEY` sekali secara lokal dengan `php artisan key:generate --show`, lalu simpan nilainya hanya di Railway Variables; jangan commit `.env` atau key ke GitHub. Gunakan domain publik yang dibuat Railway untuk `APP_URL`.
+4. Deploy aplikasi. Startup container menjalankan `php artisan migrate --force`; Railway mengarahkan traffic ke port yang diberikan melalui `PORT`.
+5. Untuk mengisi data awal yang tidak membuat akun demo dengan password publik, buka shell pada service aplikasi setelah deploy lalu jalankan:
+
+   ```sh
+   php artisan db:seed --class=RegionSeeder --force
+   php artisan db:seed --class=CategorySeeder --force
+   ```
+
+   Jangan jalankan `DatabaseSeeder` di deployment publik karena ia membuat akun demo dengan password yang sudah diketahui dan memasukkan data contoh.
+
+Railway mengganti filesystem container saat redeploy. Database PostgreSQL akan mempertahankan data aplikasi, tetapi gambar portfolio dan dokumen yang diunggah saat ini disimpan di filesystem lokal container; file tersebut tidak dijamin bertahan. Untuk penggunaan berkelanjutan, pindahkan file unggahan ke object storage (misalnya S3-compatible), atau pasang volume Railway pada lokasi storage setelah memahami biaya dan batas paketnya. Per [halaman harga Railway](https://railway.com/pricing) saat panduan ini diperbarui, paket Free mencakup kredit pemakaian bulanan terbatas ($1); aplikasi dan PostgreSQL yang berjalan terus-menerus bisa melebihi kredit itu. Harga dan batas paket dapat berubah, jadi cek sebelum deploy bila harus benar-benar gratis.
+
+Email verifikasi dan reset password juga perlu konfigurasi SMTP melalui Railway Variables. Tanpa SMTP, mailer default `log` hanya mencatat pesan ke log aplikasi, bukan mengirimkannya ke pengguna.
+
 ## Akun Demo
 
 Semua akun demo memakai kata sandi `password123`.
