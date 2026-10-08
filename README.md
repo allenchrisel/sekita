@@ -58,6 +58,7 @@ Railway membaca `Dockerfile` di root repository. Image membangun aset Vite dan m
 
    Jika nama service MySQL bukan `MySQL`, ganti bagian sebelum titik pada setiap reference agar sama persis dengan nama service. Hapus `DB_URL` jika sebelumnya sempat ditambahkan karena konfigurasi koneksi ini memakai variabel host dan kredensial secara terpisah. Buat `APP_KEY` sekali secara lokal dengan `php artisan key:generate --show`, lalu simpan nilainya hanya di Railway Variables; jangan commit `.env` atau key ke GitHub. Gunakan domain publik yang dibuat Railway untuk `APP_URL`.
 4. Deploy aplikasi. Startup container menjalankan `php artisan migrate --force`; Railway mengarahkan traffic ke port yang diberikan melalui `PORT`.
+   Pastikan `APP_URL` memakai domain publik HTTPS. Laravel mempercayai proxy Railway agar URL aset dan tautan yang dibuat aplikasi juga menggunakan HTTPS.
 5. Untuk mengisi data awal yang tidak membuat akun demo dengan password publik, buka shell pada service aplikasi setelah deploy lalu jalankan:
 
    ```sh
