@@ -1,0 +1,77 @@
+# SeKita
+
+SeKita (Sekitar Kita) adalah marketplace jasa lokal berbasis Laravel 12, Blade, Tailwind CSS 3.4, Alpine.js, dan Laravel Breeze. Laravel 12 dipakai karena Composer memblokir rilis Laravel 11 yang tersedia akibat security advisories; proyek tetap mendukung PHP 8.2 dan struktur bootstrap Laravel modern.
+
+## Menjalankan Lokal
+
+Prasyarat: PHP 8.2+, Composer 2.6+, Node.js 18+ (Node 20 direkomendasikan), serta ekstensi PHP GD dan PDO. SQLite aktif sebagai database lokal awal; aplikasi juga mendukung MySQL 8+ dan PostgreSQL 15+.
+
+```powershell
+composer install
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+php artisan key:generate
+if (-not (Test-Path database/database.sqlite)) { New-Item -ItemType File database/database.sqlite | Out-Null }
+php artisan migrate --seed
+npm install
+npm run build
+php artisan storage:link
+php artisan serve --no-reload
+```
+
+Buka `http://127.0.0.1:8000`. Untuk development frontend dengan hot reload, jalankan `npm run dev` di terminal kedua.
+
+### MySQL atau PostgreSQL
+
+Ubah `.env` menjadi salah satu konfigurasi berikut, buat databasenya terlebih dahulu, lalu jalankan migrasi dan seeder.
+
+```dotenv
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=antari
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Untuk PostgreSQL, pakai `DB_CONNECTION=pgsql`, port `5432`, dan kredensial PostgreSQL lokal Anda.
+
+## Akun Demo
+
+Semua akun demo memakai kata sandi `password123`.
+
+| Role | Email | Area uji |
+| --- | --- | --- |
+| Admin | `admin@antari.id` | Verifikasi dokumen privat dan moderasi dispute |
+| Provider | `ahmad.provider@antari.id` | Profil, WebP portfolio, dokumen, balasan ulasan |
+| Client terverifikasi | `budi.client@antari.id` | Pencarian, detail, WhatsApp, ulasan |
+
+Seeder juga membuat 100 provider tambahan: email `provider.demo.001@sekita.id` sampai `provider.demo.100@sekita.id`, semuanya memakai kata sandi `password123`. Profil demo tersebar di seluruh kategori dan lokasi yang tersedia.
+Setiap provider demo memiliki satu ulasan contoh yang ditulis oleh akun client demo Budi Santoso (`budi.client@antari.id`). Ulasan diberi penanda “Contoh ulasan demo” dan bukan testimoni pengguna sungguhan.
+
+Registrasi publik menyediakan role client atau provider. Provider mendapat profil awal dan harus melengkapi nomor WhatsApp; admin hanya dapat dibuat melalui seed atau proses internal.
+
+Email verifikasi lokal dicatat oleh mailer `log` di `storage/logs/laravel.log`. Client perlu membuka tautan verifikasi sebelum dapat mengirim ulasan.
+
+## Fitur
+
+- Form pencarian memperbarui Turbo Frame daftar provider tanpa reload seluruh halaman dan menggulir halus ke hasil; navigasi serta pagination tetap server-side dengan 12 hasil per halaman.
+- Pencarian provider dengan pagination database (12 hasil per halaman), filter kata kunci/kategori, dan wilayah provinsi → kabupaten/kota → kecamatan.
+- Profil publik dengan badge verifikasi, galeri, rating, balasan provider, serta tautan WhatsApp/telepon.
+- Rating 1–5, ulasan maksimal 500 karakter, filter profanity, penghapusan URL/nomor telepon, dan satu ulasan per provider per 30 hari.
+- Dashboard provider untuk memperbarui profil, mengunggah maksimal enam gambar yang diperkecil dan dikonversi menjadi WebP, mengirim dokumen privat, membalas dan melaporkan ulasan.
+- Dashboard admin untuk mengunduh dokumen melalui controller terautentikasi, menyetujui/menolak verifikasi, serta menyembunyikan atau mempertahankan ulasan berdasarkan hasil pemeriksaan dispute.
+- URL profil publik provider memakai slug unik dari nama akun (`/providers/nama-provider`).
+- Panel admin menyediakan pencarian dan pagination daftar client/provider serta penghapusan akun dengan konfirmasi; relasi database dan file portfolio/dokumen privat dibersihkan.
+- Pesan gagal login dan navigasi pagination tersedia dalam Bahasa Indonesia.
+
+Dokumen verifikasi disimpan pada `storage/app/private_documents`, tidak melalui public storage. Foto portfolio disimpan pada `storage/app/public/portfolios` dan membutuhkan `php artisan storage:link` agar dapat ditampilkan.
+
+Data wilayah offline berada di `database/data/indonesia-regions.json` dan memuat 38 provinsi, 514 kabupaten/kota, serta 7.285 kecamatan. Snapshot diunduh dari [wilayah.id](https://wilayah.id/api/provinces.json) (metadata sumber diperbarui 4 Juli 2025); seeder tidak membutuhkan koneksi internet. Form hanya memuat 38 provinsi awal, lalu mengambil kabupaten/kota dan kecamatan yang sesuai dari endpoint lokal.
+
+## Pemeriksaan
+
+```powershell
+php artisan test
+npm run build
+composer audit
+```
