@@ -22,7 +22,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /var/www/html
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY . .
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader \
+RUN rm -f bootstrap/cache/config.php \
+    && composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader \
     && mkdir -p storage/app/private_documents storage/app/public storage/framework/cache/data \
         storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
     && php artisan storage:link \

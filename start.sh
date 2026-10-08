@@ -13,6 +13,7 @@ mkdir -p storage/app/private_documents storage/app/public \
     storage/framework/cache/data storage/framework/sessions \
     storage/framework/views storage/logs bootstrap/cache
 
+php artisan config:clear
 php artisan migrate --force
 
 exec php -S "0.0.0.0:${PORT:-8080}" -t public

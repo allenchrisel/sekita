@@ -9,6 +9,7 @@ vendor
 public/build
 public/hot
 public/storage
+bootstrap/cache/config.php
 database/*.sqlite
 database/*.sqlite-*
 storage/logs/*
