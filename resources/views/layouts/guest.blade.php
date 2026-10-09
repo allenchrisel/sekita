@@ -18,7 +18,7 @@
             <div class="rounded-md border border-[var(--line)] bg-white px-6 py-7 shadow-sm sm:px-8">
                 {{ $slot }}
             </div>
-            <a href="{{ route('home') }}" class="mt-5 block text-center text-sm font-semibold text-[var(--muted)]">Kembali ke marketplace</a>
+            <a href="{{ route('home') }}" class="mt-5 block text-center text-sm font-semibold text-[var(--muted)]">Kembali ke Halaman Utama</a>
             </div>
         </div>
     </body>
