@@ -17,8 +17,8 @@
                         <span class="rounded-full bg-lime-50 px-3 py-1 text-xs font-bold text-lime-900">✓ Ijazah S1 terverifikasi</span>
                     @endif
                 </div>
-                <p class="mt-6 text-sm font-semibold text-[var(--coral)]">{{ $providerProfile->title }}</p>
-                <h1 class="mt-2 font-display text-4xl leading-tight sm:text-5xl">{{ $providerProfile->user->name }}</h1>
+                <h1 class="mt-4 font-display text-4xl leading-tight sm:text-5xl">{{ $providerProfile->user->name }}</h1>
+                <p class="mt-2 text-sm font-semibold text-[var(--coral)]">{{ $providerProfile->title }}</p>
                 @if ($providerProfile->user->last_online_at)
                     @if ($providerProfile->user->last_online_at->gte(now()->subMinutes(5)))
                         <p class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-emerald-800">
