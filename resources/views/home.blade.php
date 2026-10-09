@@ -104,7 +104,7 @@
     <section id="providers" class="mx-auto max-w-7xl scroll-mt-6 px-5 pt-12 lg:px-8 lg:pt-16">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="text-xs font-bold uppercase text-[var(--coral)]">Pilihan komunitas</p>
+                {{-- <p class="text-xs font-bold uppercase text-[var(--coral)]">Pilihan komunitas</p> --}}
                 <h2 class="mt-2 font-display text-3xl sm:text-4xl">Temukan orang yang tepat.</h2>
             </div>
             <p class="max-w-sm text-sm leading-6 text-[var(--muted)]">Profil nyata, ulasan dari pelanggan, dan kontak langsung tanpa perantara.</p>
